@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, Calendar, ChevronDown, ChevronUp, Trophy, ArrowRight, User, Send, Loader2, Sparkles, Flame, Award, Star, Clock, Camera, Upload, MessageSquare, AlertTriangle, ImageIcon, X, Bell, BellOff } from 'lucide-react'
+import { Check, Calendar, ChevronDown, ChevronUp, Trophy, ArrowRight, User, Send, Loader2, Sparkles, Flame, Award, Star, Clock, Camera, Upload, MessageSquare, AlertTriangle, ImageIcon, X, Bell, BellOff, Save } from 'lucide-react'
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -147,6 +147,8 @@ export function ChecklistDashboard() {
   const [weeklyHistory, setWeeklyHistory] = useState<WeeklyHistory[]>([])
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
   const [profileLoaded, setProfileLoaded] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [isAutoSaving, setIsAutoSaving] = useState(false)
   
   useEffect(() => {
     setCurrentWeek(getWeekNumber(new Date()))
@@ -159,19 +161,19 @@ export function ChecklistDashboard() {
       return
     }
 
-    // Generar clave única basada en el ID del catalizador
-    const profileKey = `catalyst_profile_${catalystId}`
     const statsKey = `catalyst_stats_${catalystId}`
     const historyKey = `catalyst_history_${catalystId}`
     const avatarKey = `catalyst_avatar_${catalystId}`
     const notificationsKey = `catalyst_notifications_${catalystId}`
     const nameKey = `catalyst_name_${catalystId}`
+    const draftKey = `catalyst_draft_${catalystId}_week_${currentWeek}`
     
     const savedStats = localStorage.getItem(statsKey)
     const savedAvatar = localStorage.getItem(avatarKey)
     const savedHistory = localStorage.getItem(historyKey)
     const savedNotifications = localStorage.getItem(notificationsKey)
     const savedName = localStorage.getItem(nameKey)
+    const savedDraft = localStorage.getItem(draftKey)
     
     if (savedStats) {
       setUserStats(JSON.parse(savedStats))
@@ -208,20 +210,65 @@ export function ChecklistDashboard() {
       setCatalystName('')
     }
     
+    if (savedDraft) {
+      const draftData = JSON.parse(savedDraft)
+      setPhases(draftData.phases)
+      setLastSaved(new Date(draftData.savedAt))
+      
+      toast({
+        title: "Borrador restaurado",
+        description: `Se cargó tu progreso guardado de la semana ${currentWeek} (no enviado)`,
+        className: "bg-blue-600 text-white border-none"
+      })
+    } else {
+      // Reset to initial state if no saved progress
+      setPhases(initialPhases)
+    }
+    
     setProfileLoaded(true)
     
     toast({
       title: "Perfil cargado",
-      description: `Bienvenido, catalizador ID: ${catalystId}`,
+      description: `Bienvenido, ${savedName || `catalizador ID: ${catalystId}`}`,
       className: "bg-emerald-600 text-white border-none"
     })
-  }, [catalystId])
+  }, [catalystId, currentWeek])
+
+  useEffect(() => {
+    if (!catalystId.trim() || !profileLoaded || !currentWeek) return
+    
+    const draftKey = `catalyst_draft_${catalystId}_week_${currentWeek}`
+    
+    // Debounce autosave to avoid too many writes
+    const timeoutId = setTimeout(() => {
+      setIsAutoSaving(true)
+      
+      const draftData = {
+        phases,
+        savedAt: new Date().toISOString(),
+        week: currentWeek,
+        catalystId,
+        catalystName
+      }
+      
+      localStorage.setItem(draftKey, JSON.stringify(draftData))
+      setLastSaved(new Date())
+      
+      setTimeout(() => {
+        setIsAutoSaving(false)
+      }, 500)
+      
+      console.log('[v0] Draft autosaved for catalyst:', catalystId, 'week:', currentWeek)
+    }, 1000) // Save 1 second after last change
+    
+    return () => clearTimeout(timeoutId)
+  }, [phases, catalystId, profileLoaded, currentWeek, catalystName])
 
   useEffect(() => {
     if (!catalystId.trim() || !profileLoaded) return
     
     const statsKey = `catalyst_stats_${catalystId}`
-    localStorage.setItem(statsKey, JSON.stringify(userStats))
+    localStorage.setItem(statsKey, JSON.JSON.stringify(userStats))
   }, [userStats, catalystId, profileLoaded])
 
   useEffect(() => {
@@ -237,14 +284,14 @@ export function ChecklistDashboard() {
     if (!catalystId.trim() || !profileLoaded) return
     
     const historyKey = `catalyst_history_${catalystId}`
-    localStorage.setItem(historyKey, JSON.stringify(weeklyHistory))
+    localStorage.setItem(historyKey, JSON.JSON.stringify(weeklyHistory))
   }, [weeklyHistory, catalystId, profileLoaded])
 
   useEffect(() => {
     if (!catalystId.trim() || !profileLoaded) return
     
     const notificationsKey = `catalyst_notifications_${catalystId}`
-    localStorage.setItem(notificationsKey, JSON.stringify(notificationsEnabled))
+    localStorage.setItem(notificationsKey, JSON.JSON.stringify(notificationsEnabled))
   }, [notificationsEnabled, catalystId, profileLoaded])
 
   useEffect(() => {
@@ -650,6 +697,7 @@ export function ChecklistDashboard() {
         catalystId,
         catalystName,
         date: new Date().toISOString(),
+        week: currentWeek, // Include currentWeek in dataToSave
         progressPercentage,
         completedTasks,
         totalTasks,
@@ -666,7 +714,12 @@ export function ChecklistDashboard() {
             startTime: task.startTime,
             completionTime: task.completionTime
           }))
-        }))
+        })),
+        userStats: { // Include userStats in the data to save
+          currentStreak: userStats.currentStreak,
+          totalPoints: userStats.totalPoints,
+          weeklyCompletions: userStats.weeklyCompletions
+        }
       }
 
       const response = await fetch('/api/save-checklist', {
@@ -674,7 +727,7 @@ export function ChecklistDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(dataToSave),
+        body: JSON.JSON.stringify(dataToSave),
       })
 
       const result = await response.json()
@@ -683,6 +736,15 @@ export function ChecklistDashboard() {
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar los datos')
       }
+
+      const draftKey = `catalyst_draft_${catalystId}_week_${currentWeek}`
+      localStorage.removeItem(draftKey)
+      
+      const submittedKey = `catalyst_submitted_${catalystId}_week_${currentWeek}`
+      localStorage.setItem(submittedKey, JSON.stringify({
+        submittedAt: new Date().toISOString(),
+        dataHash: JSON.stringify(dataToSave) // Store a hash or the data itself
+      }))
 
       toast({
         title: "Guardado exitoso",
@@ -817,6 +879,19 @@ export function ChecklistDashboard() {
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
               {completedTasks} de {totalTasks} tareas completadas
             </p>
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-400 mt-1">
+              {isAutoSaving ? (
+                <>
+                  <Save className="w-3 h-3 animate-spin" />
+                  <span>Guardando...</span>
+                </>
+              ) : lastSaved ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-500" />
+                  <span>Guardado {new Date(lastSaved).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}</span>
+                </>
+              ) : null}
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -1385,7 +1460,7 @@ export function ChecklistDashboard() {
               </Button>
 
               <p className="text-xs text-gray-400 text-center md:text-left">
-                Su progreso, rachas e insignias se guardarán automáticamente bajo su número de identificación.
+                Su progreso se guarda automáticamente. Rachas e insignias están vinculadas a su ID.
               </p>
             </div>
           </div>
