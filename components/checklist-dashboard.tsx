@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, Calendar, Users, MapPin, ChevronDown, ChevronUp, Trophy, ArrowRight, User, Send, Loader2 } from 'lucide-react'
+import { Check, Calendar, Users, MapPin, ChevronDown, ChevronUp, Trophy, ArrowRight, User, Send, Loader2, Sparkles } from 'lucide-react'
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -96,18 +96,35 @@ export function ChecklistDashboard() {
   )
   const progressPercentage = Math.round((completedTasks / totalTasks) * 100)
 
-  // Efecto de confeti al completar todo
   useEffect(() => {
     if (progressPercentage === 100) {
       confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
+        particleCount: 300,
+        spread: 120,
+        origin: { y: 0.6 },
+        colors: ['#10b981', '#0ea5e9', '#f97316'],
+        scalar: 1.5,
+        gravity: 0.8,
+        ticks: 300
       })
     }
   }, [progressPercentage])
 
   const toggleTask = (phaseId: string, taskId: string) => {
+    const phase = phases.find(p => p.id === phaseId)
+    const task = phase?.tasks.find(t => t.id === taskId)
+    
+    if (task && !task.completed) {
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.7 },
+        scalar: 1.2,
+        shapes: ['circle', 'square'],
+        colors: ['#10b981', '#34d399', '#6ee7b7']
+      })
+    }
+
     setPhases(phases.map(phase => {
       if (phase.id === phaseId) {
         return {
@@ -212,14 +229,15 @@ export function ChecklistDashboard() {
       toast({
         title: "Guardado exitoso",
         description: `Los registros de ${catalystName} han sido guardados correctamente en GitHub.`,
-        className: "bg-emerald-600 text-white border-none" // Styling success toast
+        className: "bg-emerald-600 text-white border-none"
       })
 
-      // Confeti al guardar exitosamente
       confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 }
+        particleCount: 150,
+        spread: 100,
+        origin: { y: 0.7 },
+        scalar: 1.4,
+        colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0']
       })
 
     } catch (error) {
@@ -239,7 +257,7 @@ export function ChecklistDashboard() {
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-emerald-200 dark:shadow-none shrink-0">
               CUN
@@ -255,16 +273,38 @@ export function ChecklistDashboard() {
             </div>
           </div>
 
-          {/* Progress Indicator */}
-          <div className="hidden md:block w-48">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-500 dark:text-gray-400">Progreso General</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">{progressPercentage}%</span>
+          <div className="w-full md:w-64">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-gray-600 dark:text-gray-400 font-medium">Progreso General</span>
+              <span className={cn(
+                "font-bold text-xl transition-all duration-500 ease-out transform",
+                progressPercentage === 100 ? "text-emerald-600 dark:text-emerald-400 scale-110" : "text-emerald-600 dark:text-emerald-400"
+              )}>
+                {progressPercentage}%
+              </span>
             </div>
-            <Progress value={progressPercentage} className="h-2" />
+            <div className="relative">
+              <Progress 
+                value={progressPercentage} 
+                className={cn(
+                  "h-4 transition-all duration-1000 ease-out shadow-lg",
+                  progressPercentage === 100 ? "animate-pulse" : ""
+                )} 
+              />
+              <div className={cn(
+                "absolute inset-0 rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-opacity duration-500",
+                progressPercentage > 0 ? "opacity-100 animate-shimmer" : "opacity-0"
+              )} style={{
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 2s infinite'
+              }} />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
+              {completedTasks} de {totalTasks} tareas completadas
+            </p>
           </div>
         </header>
-          
+
         {/* Phases Grid */}
         <div className="grid gap-6">
           {phases.map((phase) => {
@@ -324,33 +364,72 @@ export function ChecklistDashboard() {
                       {phase.tasks.map((task) => (
                         <div 
                           key={task.id}
+                          onClick={() => toggleTask(phase.id, task.id)}
                           className={cn(
-                            "flex items-start gap-4 p-4 md:p-5 transition-colors hover:bg-gray-50/50 dark:hover:bg-gray-800/30",
-                            task.completed ? "bg-gray-50/30 dark:bg-gray-900/30" : ""
+                            "group flex items-start gap-4 p-4 md:p-5 cursor-pointer transition-all duration-500 ease-out relative overflow-hidden",
+                            task.completed 
+                              ? "bg-gray-50/80 dark:bg-gray-900/50" 
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800/30 hover:pl-6"
                           )}
                         >
-                          <Checkbox 
-                            id={task.id}
-                            checked={task.completed}
-                            onCheckedChange={() => toggleTask(phase.id, task.id)}
-                            className={cn(
-                              "mt-1 w-5 h-5 border-2 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500",
-                              !task.completed && styles.text
-                            )}
-                          />
-                          <div className="flex-1 space-y-1">
+                          {/* Background highlight effect on completion */}
+                          <div className={cn(
+                            "absolute inset-0 opacity-0 transition-opacity duration-700 pointer-events-none",
+                            task.completed ? "opacity-100" : "",
+                            phase.color === 'green' ? "bg-gradient-to-r from-emerald-50/50 to-transparent" :
+                            phase.color === 'blue' ? "bg-gradient-to-r from-sky-50/50 to-transparent" :
+                            "bg-gradient-to-r from-orange-50/50 to-transparent"
+                          )} />
+
+                          <div className={cn(
+                            "mt-1 relative transition-transform duration-300",
+                            task.completed ? "scale-110" : "group-hover:scale-110"
+                          )}>
+                            <Checkbox 
+                              id={task.id}
+                              checked={task.completed}
+                              onCheckedChange={() => toggleTask(phase.id, task.id)}
+                              className={cn(
+                                "w-5 h-5 border-2 transition-all duration-300 data-[state=checked]:scale-105",
+                                task.completed 
+                                  ? "data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 shadow-sm shadow-emerald-200" 
+                                  : styles.text
+                              )}
+                            />
+                          </div>
+                          
+                          <div className="flex-1 space-y-1 relative z-10">
                             <label 
                               htmlFor={task.id}
                               className={cn(
-                                "text-sm md:text-base font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer block",
-                                task.completed ? "text-gray-400 line-through decoration-gray-300" : "text-gray-700 dark:text-gray-200"
+                                "text-sm md:text-base font-medium leading-relaxed block transition-all duration-500",
+                                task.completed 
+                                  ? "text-gray-400 line-through decoration-emerald-500/30 decoration-2" 
+                                  : "text-gray-700 dark:text-gray-200"
                               )}
                             >
                               {task.text}
                             </label>
                             {task.responsible && (
-                              <p className="text-xs text-gray-500">Responsable: {task.responsible}</p>
+                              <p className={cn(
+                                "text-xs transition-colors duration-300",
+                                task.completed ? "text-gray-300" : "text-gray-500"
+                              )}>
+                                Responsable: {task.responsible}
+                              </p>
                             )}
+                          </div>
+
+                          {/* Success Icon Animation */}
+                          <div className={cn(
+                            "absolute right-4 top-1/2 -translate-y-1/2 transition-all duration-500 transform",
+                            task.completed ? "opacity-100 translate-x-0 scale-100" : "opacity-0 translate-x-4 scale-50"
+                          )}>
+                            <Sparkles className={cn(
+                              "w-5 h-5", 
+                              phase.color === 'green' ? "text-emerald-400" :
+                              phase.color === 'blue' ? "text-sky-400" : "text-orange-400"
+                            )} />
                           </div>
                         </div>
                       ))}
@@ -429,6 +508,17 @@ export function ChecklistDashboard() {
           </div>
         </Card>
       </div>
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+      `}</style>
     </div>
   )
 }
