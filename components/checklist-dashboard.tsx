@@ -139,7 +139,9 @@ export function ChecklistDashboard() {
   const [showAchievementDialog, setShowAchievementDialog] = useState(false)
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null)
   const [startTime, setStartTime] = useState<Date | null>(null)
-  const [selectedTask, setSelectedTask] = useState<{phaseId: string, taskId: string} | null>(null)
+  const [selectedTask, setSelectedTask] = useState<{phaseId: string, taskId: string} | null>
+
+(null)
   const [taskNote, setTaskNote] = useState('')
   const [elapsedTimes, setElapsedTimes] = useState<Record<string, number>>({})
   const { toast } = useToast()
@@ -931,6 +933,57 @@ export function ChecklistDashboard() {
           </div>
         </header>
 
+        <Card className="border-2 border-emerald-500 shadow-lg overflow-hidden bg-white dark:bg-gray-900">
+          <div className="p-6 md:p-8">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="catalyst-id" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Número de Identificación del Catalizador
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="catalyst-id"
+                    placeholder="Ingrese su número de identificación"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 border-emerald-500 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    value={catalystId}
+                    onChange={(e) => setCatalystId(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="catalyst-name" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Nombre Completo del Catalizador
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="catalyst-name"
+                    placeholder="Ingrese su nombre completo"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    value={catalystName}
+                    onChange={(e) => setCatalystName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-400 text-center">
+                Su progreso se guarda automáticamente. Rachas e insignias están vinculadas a su ID.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Profile Stats Card */}
         <Card className="bg-gradient-to-br from-emerald-50 to-sky-50 dark:from-emerald-950/30 dark:to-sky-950/30 border-none shadow-lg">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
@@ -1415,71 +1468,26 @@ export function ChecklistDashboard() {
           </Card>
         )}
 
-        {/* New Section for Catalyst Input and Send Button */}
         <Card className="border-none shadow-lg overflow-hidden bg-white dark:bg-gray-900">
           <div className="p-6 md:p-8">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="catalyst-id" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Número de Identificación del Catalizador
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="catalyst-id"
-                    placeholder="Ingrese su número de identificación"
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
-                    value={catalystId}
-                    onChange={(e) => setCatalystId(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label htmlFor="catalyst-name" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Nombre Completo del Catalizador
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User className="h-4 w-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="catalyst-name"
-                    placeholder="Ingrese su nombre completo"
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
-                    value={catalystName}
-                    onChange={(e) => setCatalystName(e.target.value)}
-                  />
-                </div>
-              </div>
-
+            <div className="flex flex-col items-center gap-4">
               <Button
                 onClick={handleSaveData}
                 disabled={isSaving || !catalystId.trim() || !catalystName.trim()}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100 dark:shadow-none h-12 px-8 w-full md:w-auto md:self-end"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100 dark:shadow-none h-12 px-8 w-full md:w-auto text-base font-semibold"
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Enviando...
                   </>
                 ) : (
                   <>
-                    <Send className="mr-2 h-4 w-4" />
+                    <Send className="mr-2 h-5 w-5" />
                     Enviar Respuestas
                   </>
                 )}
               </Button>
-
-              <p className="text-xs text-gray-400 text-center md:text-left">
-                Su progreso se guarda automáticamente. Rachas e insignias están vinculadas a su ID.
-              </p>
             </div>
           </div>
         </Card>
