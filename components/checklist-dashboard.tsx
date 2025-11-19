@@ -11,6 +11,15 @@ import { cn } from "@/lib/utils"
 import confetti from 'canvas-confetti'
 import { useToast } from "@/hooks/use-toast"
 
+// Helper function to calculate week number
+function getWeekNumber(date: Date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const dayNum = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
 // Definición de tipos para las tareas y fases
 type Task = {
   id: string
@@ -73,7 +82,12 @@ export function ChecklistDashboard() {
   const [expandedPhase, setExpandedPhase] = useState<string | null>('antes')
   const [catalystName, setCatalystName] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [currentWeek, setCurrentWeek] = useState(0)
   const { toast } = useToast()
+
+  useEffect(() => {
+    setCurrentWeek(getWeekNumber(new Date()))
+  }, [])
 
   // Calcular progreso total
   const totalTasks = phases.reduce((acc, phase) => acc + phase.tasks.length, 0)
@@ -160,6 +174,7 @@ export function ChecklistDashboard() {
     }
 
     setIsSaving(true)
+    console.log("[v0] Starting save process...")
 
     try {
       const dataToSave = {
@@ -188,6 +203,7 @@ export function ChecklistDashboard() {
       })
 
       const result = await response.json()
+      console.log("[v0] API Response:", result)
 
       if (!response.ok) {
         throw new Error(result.error || 'Error al guardar los datos')
@@ -196,7 +212,7 @@ export function ChecklistDashboard() {
       toast({
         title: "Guardado exitoso",
         description: `Los registros de ${catalystName} han sido guardados correctamente en GitHub.`,
-        className: "bg-emerald-600 text-white"
+        className: "bg-emerald-600 text-white border-none" // Styling success toast
       })
 
       // Confeti al guardar exitosamente
@@ -230,11 +246,11 @@ export function ChecklistDashboard() {
             </div>
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                Formación EFI 2025
+                Catalizador administrativo EFI
               </h1>
               <p className="text-gray-500 dark:text-gray-400 flex items-center gap-2 mt-1">
                 <Calendar className="w-4 h-4" />
-                Checklist de Control
+                Semana {currentWeek} • Checklist de Control
               </p>
             </div>
           </div>
@@ -356,7 +372,7 @@ export function ChecklistDashboard() {
                   ¡Formación Completada!
                 </h3>
                 <p className="text-emerald-100 max-w-md">
-                  Todas las fases de la Formación EFI 2025 han sido verificadas exitosamente.
+                  Todas las fases del Catalizador administrativo EFI han sido verificadas exitosamente.
                 </p>
               </div>
               <Button variant="secondary" className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold shadow-lg">
