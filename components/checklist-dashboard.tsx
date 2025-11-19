@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Check, Calendar, Users, MapPin, ChevronDown, ChevronUp, Trophy, ArrowRight, User } from 'lucide-react'
+import { Check, Calendar, Users, MapPin, ChevronDown, ChevronUp, Trophy, ArrowRight, User, Send, Loader2 } from 'lucide-react'
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { cn } from "@/lib/utils"
 import confetti from 'canvas-confetti'
+import { useToast } from "@/hooks/use-toast"
 
 // Definición de tipos para las tareas y fases
 type Task = {
@@ -71,6 +72,8 @@ export function ChecklistDashboard() {
   const [phases, setPhases] = useState<Phase[]>(initialPhases)
   const [expandedPhase, setExpandedPhase] = useState<string | null>('antes')
   const [catalystName, setCatalystName] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const { toast } = useToast()
 
   // Calcular progreso total
   const totalTasks = phases.reduce((acc, phase) => acc + phase.tasks.length, 0)
@@ -146,6 +149,75 @@ export function ChecklistDashboard() {
     }
   }
 
+  const handleSaveData = async () => {
+    if (!catalystName.trim()) {
+      toast({
+        title: "Nombre requerido",
+        description: "Por favor ingrese el nombre del catalizador encargado antes de enviar.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      const dataToSave = {
+        catalystName,
+        date: new Date().toISOString(),
+        progressPercentage,
+        completedTasks,
+        totalTasks,
+        phases: phases.map(phase => ({
+          id: phase.id,
+          title: phase.title,
+          tasks: phase.tasks.map(task => ({
+            id: task.id,
+            text: task.text,
+            completed: task.completed
+          }))
+        }))
+      }
+
+      const response = await fetch('/api/save-checklist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSave),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al guardar los datos')
+      }
+
+      toast({
+        title: "Guardado exitoso",
+        description: `Los registros de ${catalystName} han sido guardados correctamente en GitHub.`,
+        className: "bg-emerald-600 text-white"
+      })
+
+      // Confeti al guardar exitosamente
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 }
+      })
+
+    } catch (error) {
+      console.error('[v0] Error saving data:', error)
+      toast({
+        title: "Error al guardar",
+        description: error instanceof Error ? error.message : "No se pudieron guardar los registros. Intente nuevamente.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50/50 dark:bg-gray-900 p-4 md:p-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -165,37 +237,55 @@ export function ChecklistDashboard() {
                 Checklist de Control
               </p>
               
-              <div className="mt-3">
+              <div className="mt-3 space-y-2">
                 <label htmlFor="catalyst" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5 block">
                   Catalizador Encargado
                 </label>
-                <div className="relative max-w-xs">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input 
-                    type="text" 
-                    id="catalyst"
-                    value={catalystName}
-                    onChange={(e) => setCatalystName(e.target.value)}
-                    placeholder="Nombre del responsable"
-                    className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
-                  />
+                <div className="flex gap-2 max-w-md">
+                  <div className="relative flex-1">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input 
+                      type="text" 
+                      id="catalyst"
+                      value={catalystName}
+                      onChange={(e) => setCatalystName(e.target.value)}
+                      placeholder="Nombre del responsable"
+                      className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleSaveData}
+                    disabled={isSaving || !catalystName.trim()}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                    size="sm"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Enviar
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div className="w-full md:w-64 bg-gray-100 dark:bg-gray-800 rounded-xl p-4">
-            <div className="flex justify-between text-sm mb-2 font-medium">
-              <span className="text-gray-600 dark:text-gray-300">Progreso Total</span>
-              <span className="text-emerald-600 dark:text-emerald-400">{progressPercentage}%</span>
+
+          {/* Progress Indicator */}
+          <div className="hidden md:block w-48">
+            <div className="flex justify-between text-sm mb-1">
+              <span className="text-gray-500 dark:text-gray-400">Progreso General</span>
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">{progressPercentage}%</span>
             </div>
-            <Progress value={progressPercentage} className="h-3 bg-gray-200 dark:bg-gray-700" />
-            <div className="mt-2 text-xs text-gray-400 text-right">
-              {completedTasks} de {totalTasks} actividades
-            </div>
+            <Progress value={progressPercentage} className="h-2" />
           </div>
         </header>
-
+          
         {/* Phases Grid */}
         <div className="grid gap-6">
           {phases.map((phase) => {
