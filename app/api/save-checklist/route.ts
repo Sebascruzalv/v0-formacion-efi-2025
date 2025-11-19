@@ -32,9 +32,8 @@ export async function POST(request: Request) {
       )
     }
 
-    // Crear el nombre del archivo con timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    const filename = `registros/${data.catalystName.replace(/\s+/g, '_')}_${timestamp}.json`
+    const filename = `registros/${data.catalystFullName ? data.catalystFullName.replace(/\s+/g, '_') : data.catalystName.replace(/\s+/g, '_')}_${timestamp}.json`
     
     // Verificar primero si el repositorio existe y es accesible
     try {
@@ -57,81 +56,53 @@ export async function POST(request: Request) {
       }
     } catch (error) {
       console.error('[v0] Repo check failed:', error)
-      // Si falla la verificación del repo, lanzamos el error para detener el proceso
-      // Pero si es un error de red (fetch throws), lo dejamos pasar para que falle más adelante o se maneje en el catch principal
       if (error instanceof Error && (error.message.includes('no existe') || error.message.includes('Token'))) {
         throw error
       }
     }
 
-    // Obtener el contenido actual del archivo (si existe)
-    const getFileUrl = `https://api.github.com/repos/${githubRepo}/contents/${filename}`
-    let sha: string | undefined
-    
-    try {
-      const getResponse = await fetch(getFileUrl, {
-        headers: {
-          'Authorization': `Bearer ${githubToken}`,
-          'Accept': 'application/vnd.github.v3+json',
-        },
-      })
-      
-      if (getResponse.ok) {
-        const fileData = await getResponse.json()
-        sha = fileData.sha
-      }
-    } catch (error) {
-      // El archivo no existe, está bien
-      console.log('[v0] File does not exist yet (or fetch failed), will create new one')
-    }
+    // GitHub creará automáticamente la carpeta registros/ si no existe
     
     // Preparar el contenido
     const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64')
     
-    // Crear o actualizar el archivo en GitHub
+    // Crear el archivo en GitHub (GitHub creará la carpeta automáticamente)
     const updateUrl = `https://api.github.com/repos/${githubRepo}/contents/${filename}`
     
-    try {
-      const updateResponse = await fetch(updateUrl, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${githubToken}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: `Actualización de checklist - ${data.catalystName} - ${new Date().toLocaleString('es-ES')}`,
-          content,
-          branch: githubBranch,
-          ...(sha && { sha })
-        }),
-      })
+    const updateResponse = await fetch(updateUrl, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${githubToken}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `Checklist - ${data.catalystFullName || data.catalystName} - Semana ${data.weekNumber} - ${new Date().toLocaleString('es-ES')}`,
+        content,
+        branch: githubBranch,
+      }),
+    })
 
-      if (!updateResponse.ok) {
-        const errorData = await updateResponse.json().catch(() => ({}))
-        console.error('[v0] GitHub API error:', updateResponse.status, errorData)
-        
-        if (updateResponse.status === 404) {
-           throw new Error(`No se encontró el repositorio "${githubRepo}" o la ruta del archivo.`)
-        }
-        
-        throw new Error(errorData.message || `Error al guardar en GitHub (${updateResponse.status})`)
-      }
-
-      const result = await updateResponse.json()
+    if (!updateResponse.ok) {
+      const errorData = await updateResponse.json().catch(() => ({}))
+      console.error('[v0] GitHub API error:', updateResponse.status, errorData)
       
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Datos guardados correctamente en GitHub',
-        fileUrl: result.content.html_url
-      })
-    } catch (error) {
-      // Capturar errores específicos de fetch si lanza excepciones en 404
-      if (error instanceof Error && error.message.includes('404')) {
-         throw new Error(`No se encontró el repositorio "${githubRepo}". Verifique el nombre y los permisos del token.`)
+      if (updateResponse.status === 404) {
+        throw new Error(`No se encontró el repositorio "${githubRepo}". Verifique el nombre y que el token tenga permisos de escritura.`)
+      } else if (updateResponse.status === 401) {
+        throw new Error('Token de GitHub inválido o sin permisos de escritura.')
       }
-      throw error
+      
+      throw new Error(errorData.message || `Error al guardar en GitHub (${updateResponse.status})`)
     }
+
+    const result = await updateResponse.json()
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Datos guardados correctamente en GitHub',
+      fileUrl: result.content.html_url
+    })
     
   } catch (error) {
     console.error('[v0] Error in save-checklist API:', error)

@@ -176,7 +176,11 @@ export function ChecklistDashboard() {
     const savedDraft = localStorage.getItem(draftKey)
     
     if (savedStats) {
-      setUserStats(JSON.parse(savedStats))
+      try {
+        setUserStats(JSON.parse(savedStats))
+      } catch (e) {
+        console.error("Error parsing saved stats", e)
+      }
     } else {
       // Resetear stats si es un nuevo perfil
       setUserStats({
@@ -193,13 +197,23 @@ export function ChecklistDashboard() {
     }
     
     if (savedHistory) {
-      setWeeklyHistory(JSON.parse(savedHistory))
+      try {
+        setWeeklyHistory(JSON.parse(savedHistory))
+      } catch (e) {
+        console.error("Error parsing saved history", e)
+        setWeeklyHistory([])
+      }
     } else {
       setWeeklyHistory([])
     }
     
     if (savedNotifications) {
-      setNotificationsEnabled(JSON.parse(savedNotifications))
+      try {
+        setNotificationsEnabled(JSON.parse(savedNotifications))
+      } catch (e) {
+        console.error("Error parsing saved notifications", e)
+        setNotificationsEnabled(false)
+      }
     } else {
       setNotificationsEnabled(false)
     }
@@ -211,15 +225,19 @@ export function ChecklistDashboard() {
     }
     
     if (savedDraft) {
-      const draftData = JSON.parse(savedDraft)
-      setPhases(draftData.phases)
-      setLastSaved(new Date(draftData.savedAt))
-      
-      toast({
-        title: "Borrador restaurado",
-        description: `Se cargó tu progreso guardado de la semana ${currentWeek} (no enviado)`,
-        className: "bg-blue-600 text-white border-none"
-      })
+      try {
+        const draftData = JSON.parse(savedDraft)
+        setPhases(draftData.phases)
+        setLastSaved(new Date(draftData.savedAt))
+        
+        toast({
+          title: "Borrador restaurado",
+          description: `Se cargó tu progreso guardado de la semana ${currentWeek} (no enviado)`,
+          className: "bg-blue-600 text-white border-none"
+        })
+      } catch (e) {
+        console.error("Error parsing saved draft", e)
+      }
     } else {
       // Reset to initial state if no saved progress
       setPhases(initialPhases)
@@ -268,7 +286,7 @@ export function ChecklistDashboard() {
     if (!catalystId.trim() || !profileLoaded) return
     
     const statsKey = `catalyst_stats_${catalystId}`
-    localStorage.setItem(statsKey, JSON.JSON.stringify(userStats))
+    localStorage.setItem(statsKey, JSON.stringify(userStats))
   }, [userStats, catalystId, profileLoaded])
 
   useEffect(() => {
@@ -284,14 +302,14 @@ export function ChecklistDashboard() {
     if (!catalystId.trim() || !profileLoaded) return
     
     const historyKey = `catalyst_history_${catalystId}`
-    localStorage.setItem(historyKey, JSON.JSON.stringify(weeklyHistory))
+    localStorage.setItem(historyKey, JSON.stringify(weeklyHistory))
   }, [weeklyHistory, catalystId, profileLoaded])
 
   useEffect(() => {
     if (!catalystId.trim() || !profileLoaded) return
     
     const notificationsKey = `catalyst_notifications_${catalystId}`
-    localStorage.setItem(notificationsKey, JSON.JSON.stringify(notificationsEnabled))
+    localStorage.setItem(notificationsKey, JSON.stringify(notificationsEnabled))
   }, [notificationsEnabled, catalystId, profileLoaded])
 
   useEffect(() => {
@@ -727,7 +745,7 @@ export function ChecklistDashboard() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.JSON.stringify(dataToSave),
+        body: JSON.stringify(dataToSave),
       })
 
       const result = await response.json()
