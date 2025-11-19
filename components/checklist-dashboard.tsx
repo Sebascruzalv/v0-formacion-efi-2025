@@ -236,43 +236,6 @@ export function ChecklistDashboard() {
                 <Calendar className="w-4 h-4" />
                 Checklist de Control
               </p>
-              
-              <div className="mt-3 space-y-2">
-                <label htmlFor="catalyst" className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5 block">
-                  Catalizador Encargado
-                </label>
-                <div className="flex gap-2 max-w-md">
-                  <div className="relative flex-1">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input 
-                      type="text" 
-                      id="catalyst"
-                      value={catalystName}
-                      onChange={(e) => setCatalystName(e.target.value)}
-                      placeholder="Nombre del responsable"
-                      className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
-                    />
-                  </div>
-                  <Button 
-                    onClick={handleSaveData}
-                    disabled={isSaving || !catalystName.trim()}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
-                    size="sm"
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Enviar
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -402,6 +365,53 @@ export function ChecklistDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* New Section for Catalyst Input and Send Button */}
+        <Card className="border-none shadow-lg overflow-hidden bg-white dark:bg-gray-900">
+          <div className="p-6 md:p-8">
+            <div className="flex flex-col gap-4">
+              <label htmlFor="catalyst-bottom" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Catalizador Encargado
+              </label>
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="catalyst-bottom"
+                    placeholder="Nombre del responsable"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    value={catalystName}
+                    onChange={(e) => setCatalystName(e.target.value)}
+                  />
+                </div>
+                <Button
+                  onClick={handleSaveData}
+                  disabled={isSaving || !catalystName.trim()}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100 dark:shadow-none h-12 px-8 min-w-[140px]"
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Enviar Respuestas
+                    </>
+                  )}
+                </Button>
+              </div>
+              <p className="text-xs text-gray-400 text-center md:text-left">
+                Al enviar, se guardará un registro permanente en el repositorio de GitHub.
+              </p>
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   )
