@@ -1,0 +1,112 @@
+{
+  "catalystName": "sexgvjb",
+  "date": "2025-11-19T16:16:49.777Z",
+  "progressPercentage": 0,
+  "completedTasks": 0,
+  "totalTasks": 17,
+  "phases": [
+    {
+      "id": "antes",
+      "title": "Antes de la Formación",
+      "tasks": [
+        {
+          "id": "a1",
+          "text": "Reserva del espacio físico o virtual (Meet)",
+          "completed": false
+        },
+        {
+          "id": "a2",
+          "text": "Definir participación de las áreas en la formación",
+          "completed": false
+        },
+        {
+          "id": "a3",
+          "text": "Verificar el aseo y mantenimiento de la sala",
+          "completed": false
+        },
+        {
+          "id": "a4",
+          "text": "Verificar cámara, micrófono, televisor o videobeam",
+          "completed": false
+        },
+        {
+          "id": "a5",
+          "text": "Crear ficha de calificación individual",
+          "completed": false
+        },
+        {
+          "id": "a6",
+          "text": "Confirmar disponibilidad del formador y asistentes",
+          "completed": false
+        },
+        {
+          "id": "a7",
+          "text": "Enviar invitación formal con agenda, enlace (Grupo de whatsapp)",
+          "completed": false
+        },
+        {
+          "id": "a8",
+          "text": "Validar lista de asistencia previa y teléfonos de contacto",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "durante",
+      "title": "Durante la Formación",
+      "tasks": [
+        {
+          "id": "d1",
+          "text": "Verificar asistencia puntual (Llamar si no se conectan)",
+          "completed": false
+        },
+        {
+          "id": "d2",
+          "text": "Garantizar la entrega del colaborador (nuevo) al equipo de formación",
+          "completed": false
+        },
+        {
+          "id": "d3",
+          "text": "Iniciar sesión (temas, reglas, responsables, mensaje inspirador)",
+          "completed": false
+        },
+        {
+          "id": "d4",
+          "text": "Enviar invitación del día siguiente",
+          "completed": false
+        },
+        {
+          "id": "d5",
+          "text": "Dejar el espacio físico limpio y ordenado",
+          "completed": false
+        },
+        {
+          "id": "d6",
+          "text": "Entregar material de conexión usado a tecnología",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "despues",
+      "title": "Después de la Formación",
+      "tasks": [
+        {
+          "id": "p1",
+          "text": "Actualizar formulario de evaluación y base de ingresos 2025",
+          "completed": false
+        },
+        {
+          "id": "p2",
+          "text": "Acompañar ingreso del colaborador al área correspondiente",
+          "completed": false
+        },
+        {
+          "id": "p3",
+          "text": "Analizar retroalimentación para mejorar sesiones",
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
