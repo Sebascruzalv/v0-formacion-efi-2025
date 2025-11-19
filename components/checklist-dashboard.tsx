@@ -125,6 +125,7 @@ const initialAchievements: Achievement[] = [
 export function ChecklistDashboard() {
   const [phases, setPhases] = useState<Phase[]>(initialPhases)
   const [expandedPhase, setExpandedPhase] = useState<string | null>('antes')
+  const [catalystId, setCatalystId] = useState('')
   const [catalystName, setCatalystName] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [currentWeek, setCurrentWeek] = useState(0)
@@ -145,45 +146,116 @@ export function ChecklistDashboard() {
 
   const [weeklyHistory, setWeeklyHistory] = useState<WeeklyHistory[]>([])
   const [notificationsEnabled, setNotificationsEnabled] = useState(false)
+  const [profileLoaded, setProfileLoaded] = useState(false)
   
   useEffect(() => {
-    const savedStats = localStorage.getItem('userStats')
-    const savedName = localStorage.getItem('catalystName')
-    const savedAvatar = localStorage.getItem('avatarUrl')
-    const savedHistory = localStorage.getItem('weeklyHistory')
-    const savedNotifications = localStorage.getItem('notificationsEnabled')
-    
-    if (savedStats) {
-      setUserStats(JSON.parse(savedStats))
-    }
-    if (savedName) {
-      setCatalystName(savedName)
-    }
-    if (savedAvatar) {
-      setUserStats(prev => ({ ...prev, avatarUrl: savedAvatar }))
-    }
-    if (savedHistory) {
-      setWeeklyHistory(JSON.parse(savedHistory))
-    }
-    if (savedNotifications) {
-      setNotificationsEnabled(JSON.parse(savedNotifications))
-    }
-    
     setCurrentWeek(getWeekNumber(new Date()))
     setStartTime(new Date())
-    
-    if (savedNotifications === 'true' && 'Notification' in window) {
-      Notification.requestPermission()
-    }
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('userStats', JSON.stringify(userStats))
-  }, [userStats])
+    if (!catalystId.trim()) {
+      setProfileLoaded(false)
+      return
+    }
+
+    // Generar clave única basada en el ID del catalizador
+    const profileKey = `catalyst_profile_${catalystId}`
+    const statsKey = `catalyst_stats_${catalystId}`
+    const historyKey = `catalyst_history_${catalystId}`
+    const avatarKey = `catalyst_avatar_${catalystId}`
+    const notificationsKey = `catalyst_notifications_${catalystId}`
+    const nameKey = `catalyst_name_${catalystId}`
+    
+    const savedStats = localStorage.getItem(statsKey)
+    const savedAvatar = localStorage.getItem(avatarKey)
+    const savedHistory = localStorage.getItem(historyKey)
+    const savedNotifications = localStorage.getItem(notificationsKey)
+    const savedName = localStorage.getItem(nameKey)
+    
+    if (savedStats) {
+      setUserStats(JSON.parse(savedStats))
+    } else {
+      // Resetear stats si es un nuevo perfil
+      setUserStats({
+        currentStreak: 0,
+        longestStreak: 0,
+        totalPoints: 0,
+        weeklyCompletions: 0,
+        achievements: initialAchievements,
+      })
+    }
+    
+    if (savedAvatar) {
+      setUserStats(prev => ({ ...prev, avatarUrl: savedAvatar }))
+    }
+    
+    if (savedHistory) {
+      setWeeklyHistory(JSON.parse(savedHistory))
+    } else {
+      setWeeklyHistory([])
+    }
+    
+    if (savedNotifications) {
+      setNotificationsEnabled(JSON.parse(savedNotifications))
+    } else {
+      setNotificationsEnabled(false)
+    }
+    
+    if (savedName) {
+      setCatalystName(savedName)
+    } else {
+      setCatalystName('')
+    }
+    
+    setProfileLoaded(true)
+    
+    toast({
+      title: "Perfil cargado",
+      description: `Bienvenido, catalizador ID: ${catalystId}`,
+      className: "bg-emerald-600 text-white border-none"
+    })
+  }, [catalystId])
 
   useEffect(() => {
-    localStorage.setItem('catalystName', catalystName)
-  }, [catalystName])
+    if (!catalystId.trim() || !profileLoaded) return
+    
+    const statsKey = `catalyst_stats_${catalystId}`
+    localStorage.setItem(statsKey, JSON.stringify(userStats))
+  }, [userStats, catalystId, profileLoaded])
+
+  useEffect(() => {
+    if (!catalystId.trim() || !profileLoaded) return
+    
+    const avatarKey = `catalyst_avatar_${catalystId}`
+    if (userStats.avatarUrl) {
+      localStorage.setItem(avatarKey, userStats.avatarUrl)
+    }
+  }, [userStats.avatarUrl, catalystId, profileLoaded])
+
+  useEffect(() => {
+    if (!catalystId.trim() || !profileLoaded) return
+    
+    const historyKey = `catalyst_history_${catalystId}`
+    localStorage.setItem(historyKey, JSON.stringify(weeklyHistory))
+  }, [weeklyHistory, catalystId, profileLoaded])
+
+  useEffect(() => {
+    if (!catalystId.trim() || !profileLoaded) return
+    
+    const notificationsKey = `catalyst_notifications_${catalystId}`
+    localStorage.setItem(notificationsKey, JSON.stringify(notificationsEnabled))
+  }, [notificationsEnabled, catalystId, profileLoaded])
+
+  useEffect(() => {
+    if (!catalystId.trim() || !profileLoaded) return
+    
+    const nameKey = `catalyst_name_${catalystId}`
+    if (catalystName.trim()) {
+      localStorage.setItem(nameKey, catalystName)
+    }
+  }, [catalystName, catalystId, profileLoaded])
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -234,7 +306,6 @@ export function ChecklistDashboard() {
       
       const updatedHistory = [...weeklyHistory.filter(h => h.week !== currentWeek), newEntry]
       setWeeklyHistory(updatedHistory)
-      localStorage.setItem('weeklyHistory', JSON.stringify(updatedHistory))
       
       if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
         new Notification('¡Formación Completada!', {
@@ -553,10 +624,19 @@ export function ChecklistDashboard() {
   }
 
   const handleSaveData = async () => {
+    if (!catalystId.trim()) {
+      toast({
+        title: "ID requerido",
+        description: "Por favor ingrese su número de identificación antes de enviar.",
+        variant: "destructive"
+      })
+      return
+    }
+
     if (!catalystName.trim()) {
       toast({
         title: "Nombre requerido",
-        description: "Por favor ingrese el nombre del catalizador encargado antes de enviar.",
+        description: "Por favor ingrese su nombre completo antes de enviar.",
         variant: "destructive"
       })
       return
@@ -567,6 +647,7 @@ export function ChecklistDashboard() {
 
     try {
       const dataToSave = {
+        catalystId,
         catalystName,
         date: new Date().toISOString(),
         progressPercentage,
@@ -605,7 +686,7 @@ export function ChecklistDashboard() {
 
       toast({
         title: "Guardado exitoso",
-        description: `Los registros de ${catalystName} han sido guardados correctamente en GitHub.`,
+        description: `Los registros de ${catalystName} (ID: ${catalystId}) han sido guardados correctamente en GitHub.`,
         className: "bg-emerald-600 text-white border-none"
       })
 
@@ -636,7 +717,10 @@ export function ChecklistDashboard() {
       reader.onloadend = () => {
         const avatarUrl = reader.result as string
         setUserStats(prev => ({ ...prev, avatarUrl }))
-        localStorage.setItem('avatarUrl', avatarUrl)
+        if (catalystId.trim() && profileLoaded) {
+          const avatarKey = `catalyst_avatar_${catalystId}`
+          localStorage.setItem(avatarKey, avatarUrl)
+        }
       }
       reader.readAsDataURL(file)
     }
@@ -656,7 +740,10 @@ export function ChecklistDashboard() {
       const permission = await Notification.requestPermission()
       if (permission === 'granted') {
         setNotificationsEnabled(true)
-        localStorage.setItem('notificationsEnabled', 'true')
+        if (catalystId.trim() && profileLoaded) {
+          const notificationsKey = `catalyst_notifications_${catalystId}`
+          localStorage.setItem(notificationsKey, 'true')
+        }
         toast({
           title: "Notificaciones activadas",
           description: "Recibirás notificaciones sobre tu progreso.",
@@ -665,7 +752,10 @@ export function ChecklistDashboard() {
       }
     } else {
       setNotificationsEnabled(false)
-      localStorage.setItem('notificationsEnabled', 'false')
+      if (catalystId.trim() && profileLoaded) {
+        const notificationsKey = `catalyst_notifications_${catalystId}`
+        localStorage.setItem(notificationsKey, 'false')
+      }
       toast({
         title: "Notificaciones desactivadas",
         description: "Ya no recibirás notificaciones.",
@@ -754,9 +844,9 @@ export function ChecklistDashboard() {
               {/* Avatar Section */}
               <div className="relative group">
                 <Avatar className="h-24 w-24 border-4 border-white dark:border-gray-800 shadow-xl">
-                  <AvatarImage src={userStats.avatarUrl || "/placeholder.svg"} alt={catalystName} />
+                  <AvatarImage src={userStats.avatarUrl || "/placeholder.svg"} alt={`Catalizador ${catalystId}`} />
                   <AvatarFallback className="bg-emerald-600 text-white text-2xl font-bold">
-                    {catalystName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'CA'}
+                    {catalystId.slice(0, 2).toUpperCase() || 'CA'}
                   </AvatarFallback>
                 </Avatar>
                 <label htmlFor="avatar-upload" className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -1210,7 +1300,7 @@ export function ChecklistDashboard() {
               </div>
               <PDFGenerator 
                 data={{
-                  catalystName,
+                  catalystName: catalystId, // Use catalystId for name in PDF
                   date: new Date().toISOString(),
                   week: currentWeek,
                   progressPercentage,
@@ -1235,45 +1325,67 @@ export function ChecklistDashboard() {
         {/* New Section for Catalyst Input and Send Button */}
         <Card className="border-none shadow-lg overflow-hidden bg-white dark:bg-gray-900">
           <div className="p-6 md:p-8">
-            <div className="flex flex-col gap-4">
-              <label htmlFor="catalyst-bottom" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Catalizador Encargado
-              </label>
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-grow">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="catalyst-id" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Número de Identificación del Catalizador
+                </label>
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <User className="h-4 w-4 text-gray-400" />
                   </div>
                   <input
                     type="text"
-                    id="catalyst-bottom"
-                    placeholder="Nombre del responsable"
+                    id="catalyst-id"
+                    placeholder="Ingrese su número de identificación"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
+                    value={catalystId}
+                    onChange={(e) => setCatalystId(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label htmlFor="catalyst-name" className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Nombre Completo del Catalizador
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    id="catalyst-name"
+                    placeholder="Ingrese su nombre completo"
                     className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all text-sm"
                     value={catalystName}
                     onChange={(e) => setCatalystName(e.target.value)}
                   />
                 </div>
-                <Button
-                  onClick={handleSaveData}
-                  disabled={isSaving || !catalystName.trim()}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100 dark:shadow-none h-12 px-8 min-w-[140px]"
-                >
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="mr-2 h-4 w-4" />
-                      Enviar Respuestas
-                    </>
-                  )}
-                </Button>
               </div>
+
+              <Button
+                onClick={handleSaveData}
+                disabled={isSaving || !catalystId.trim() || !catalystName.trim()}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-100 dark:shadow-none h-12 px-8 w-full md:w-auto md:self-end"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Enviar Respuestas
+                  </>
+                )}
+              </Button>
+
               <p className="text-xs text-gray-400 text-center md:text-left">
-                Al enviar, se guardará un registro permanente en el repositorio de GitHub.
+                Su progreso, rachas e insignias se guardarán automáticamente bajo su número de identificación.
               </p>
             </div>
           </div>
