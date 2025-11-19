@@ -1,0 +1,129 @@
+{
+  "catalystId": "1018501864",
+  "catalystName": "Sebastian Mateo Cruz Alvarez",
+  "date": "2025-11-19T17:18:23.299Z",
+  "progressPercentage": 47,
+  "completedTasks": 8,
+  "totalTasks": 17,
+  "phases": [
+    {
+      "id": "antes",
+      "title": "Antes de la Formación",
+      "tasks": [
+        {
+          "id": "a1",
+          "text": "Reserva del espacio físico o virtual (Meet)",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:07.405Z"
+        },
+        {
+          "id": "a2",
+          "text": "Definir participación de las áreas en la formación",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:25.378Z"
+        },
+        {
+          "id": "a3",
+          "text": "Verificar el aseo y mantenimiento de la sala",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:27.402Z"
+        },
+        {
+          "id": "a4",
+          "text": "Verificar cámara, micrófono, televisor o videobeam",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:31.799Z"
+        },
+        {
+          "id": "a5",
+          "text": "Crear ficha de calificación individual",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:37.986Z"
+        },
+        {
+          "id": "a6",
+          "text": "Confirmar disponibilidad del formador y asistentes",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:42.886Z"
+        },
+        {
+          "id": "a7",
+          "text": "Enviar invitación formal con agenda, enlace (Grupo de whatsapp)",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:46.897Z"
+        },
+        {
+          "id": "a8",
+          "text": "Validar lista de asistencia previa y teléfonos de contacto",
+          "completed": true,
+          "startTime": "2025-11-19T17:17:07.405Z",
+          "completionTime": "2025-11-19T17:17:49.330Z"
+        }
+      ]
+    },
+    {
+      "id": "durante",
+      "title": "Durante la Formación",
+      "tasks": [
+        {
+          "id": "d1",
+          "text": "Verificar asistencia puntual (Llamar si no se conectan)",
+          "completed": false
+        },
+        {
+          "id": "d2",
+          "text": "Garantizar la entrega del colaborador (nuevo) al equipo de formación",
+          "completed": false
+        },
+        {
+          "id": "d3",
+          "text": "Iniciar sesión (temas, reglas, responsables, mensaje inspirador)",
+          "completed": false
+        },
+        {
+          "id": "d4",
+          "text": "Enviar invitación del día siguiente",
+          "completed": false
+        },
+        {
+          "id": "d5",
+          "text": "Dejar el espacio físico limpio y ordenado",
+          "completed": false
+        },
+        {
+          "id": "d6",
+          "text": "Entregar material de conexión usado a tecnología",
+          "completed": false
+        }
+      ]
+    },
+    {
+      "id": "despues",
+      "title": "Después de la Formación",
+      "tasks": [
+        {
+          "id": "p1",
+          "text": "Actualizar formulario de evaluación y base de ingresos 2025",
+          "completed": false
+        },
+        {
+          "id": "p2",
+          "text": "Acompañar ingreso del colaborador al área correspondiente",
+          "completed": false
+        },
+        {
+          "id": "p3",
+          "text": "Analizar retroalimentación para mejorar sesiones",
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
