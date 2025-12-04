@@ -1,0 +1,167 @@
+{
+  "catalystId": "1015442238",
+  "catalystName": "PAULA CAROLINA OSORIO MONTENEGRO",
+  "date": "2025-12-04T20:14:25.987Z",
+  "week": 49,
+  "progressPercentage": 100,
+  "completedTasks": 17,
+  "totalTasks": 17,
+  "phases": [
+    {
+      "id": "antes",
+      "title": "Antes de la Formación",
+      "tasks": [
+        {
+          "id": "a1",
+          "text": "Reserva del espacio físico o virtual (Meet)",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T20:44:52.659Z"
+        },
+        {
+          "id": "a2",
+          "text": "Definir participación de las áreas en la formación",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T21:23:21.659Z"
+        },
+        {
+          "id": "a3",
+          "text": "Verificar el aseo y mantenimiento de la sala",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T21:23:30.921Z"
+        },
+        {
+          "id": "a4",
+          "text": "Verificar cámara, micrófono, televisor o videobeam",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T21:24:05.482Z"
+        },
+        {
+          "id": "a5",
+          "text": "Crear ficha de calificación individual",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T22:05:44.686Z"
+        },
+        {
+          "id": "a6",
+          "text": "Confirmar disponibilidad del formador y asistentes",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T22:08:49.272Z"
+        },
+        {
+          "id": "a7",
+          "text": "Enviar invitación formal con agenda, enlace (Grupo de whatsapp)",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T22:09:00.109Z"
+        },
+        {
+          "id": "a8",
+          "text": "Validar lista de asistencia previa y teléfonos de contacto",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-01T20:44:52.659Z",
+          "completionTime": "2025-12-01T22:09:05.593Z"
+        }
+      ]
+    },
+    {
+      "id": "durante",
+      "title": "Durante la Formación",
+      "tasks": [
+        {
+          "id": "d1",
+          "text": "Verificar asistencia puntual (Llamar si no se conectan)",
+          "completed": true,
+          "priority": "high",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-02T14:54:30.988Z"
+        },
+        {
+          "id": "d2",
+          "text": "Garantizar la entrega del colaborador (nuevo) al equipo de formación",
+          "completed": true,
+          "priority": "high",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-02T14:54:41.473Z"
+        },
+        {
+          "id": "d3",
+          "text": "Iniciar sesión (temas, reglas, responsables, mensaje inspirador)",
+          "completed": true,
+          "priority": "high",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-02T19:38:30.147Z"
+        },
+        {
+          "id": "d4",
+          "text": "Enviar invitación del día siguiente",
+          "completed": true,
+          "priority": "high",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-03T15:35:13.707Z"
+        },
+        {
+          "id": "d5",
+          "text": "Dejar el espacio físico limpio y ordenado",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-03T15:35:20.041Z"
+        },
+        {
+          "id": "d6",
+          "text": "Entregar material de conexión usado a tecnología",
+          "completed": true,
+          "priority": "medium",
+          "startTime": "2025-12-02T14:54:30.988Z",
+          "completionTime": "2025-12-03T15:35:24.784Z"
+        }
+      ]
+    },
+    {
+      "id": "despues",
+      "title": "Después de la Formación",
+      "tasks": [
+        {
+          "id": "p1",
+          "text": "Actualizar formulario de evaluación y base de ingresos 2025",
+          "completed": true,
+          "startTime": "2025-12-04T20:14:13.222Z",
+          "completionTime": "2025-12-04T20:14:13.222Z"
+        },
+        {
+          "id": "p2",
+          "text": "Acompañar ingreso del colaborador al área correspondiente",
+          "completed": true,
+          "startTime": "2025-12-04T20:14:13.222Z",
+          "completionTime": "2025-12-04T20:14:18.211Z"
+        },
+        {
+          "id": "p3",
+          "text": "Analizar retroalimentación para mejorar sesiones",
+          "completed": true,
+          "startTime": "2025-12-04T20:14:13.222Z",
+          "completionTime": "2025-12-04T20:14:22.115Z"
+        }
+      ]
+    }
+  ],
+  "userStats": {
+    "currentStreak": 1,
+    "totalPoints": 280,
+    "weeklyCompletions": 1
+  }
+}
